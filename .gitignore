@@ -12,6 +12,7 @@
 #
 .*
 !.rgignore
+!.config
 *.a
 *.asn1.[ch]
 *.bin

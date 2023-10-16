@@ -11,6 +11,7 @@
 # Normal rules (sorted alphabetically)
 #
 .*
+!.rgignore
 *.a
 *.asn1.[ch]
 *.bin
@@ -170,3 +171,5 @@ sphinx_*/
 
 # Rust analyzer configuration
 /rust-project.json
+
+justfile

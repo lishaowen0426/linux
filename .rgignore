@@ -1,0 +1,8 @@
+Documentation/
+/arch/*
+!/arch/arm64/
+#!/arch/arm/
+LICENSES/
+Kbuild
+Kconfig
+scripts/

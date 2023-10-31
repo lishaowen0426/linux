@@ -1,6 +1,6 @@
 set shell := ["bash", "-uc"]
 
 tag:
-    ctags -R -f .tags  
+    make O=. ARCH=arm64 COMPILED_SOURCE=1 tags
     
 

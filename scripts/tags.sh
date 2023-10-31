@@ -262,7 +262,8 @@ exuberant()
 	    CTAGS_EXTRA="extras"
 	fi
 	setup_regex exuberant asm c
-	all_target_sources | xargs $1 -a                        \
+    all_target_sources | xargs ctags "${regex[@]}"
+	all_target_sources | xargs $1 -a --verbose                         \
 	-I __initdata,__exitdata,__initconst,__ro_after_init	\
 	-I __initdata_memblock					\
 	-I __refdata,__attribute,__maybe_unused,__always_unused \
@@ -274,8 +275,8 @@ exuberant()
 	-I __used,__packed,__packed2__,__must_check,__must_hold	\
 	-I EXPORT_SYMBOL,EXPORT_SYMBOL_GPL,ACPI_EXPORT_SYMBOL   \
 	-I DEFINE_TRACE,EXPORT_TRACEPOINT_SYMBOL,EXPORT_TRACEPOINT_SYMBOL_GPL \
-	-I static,const						\
-	--$CTAGS_EXTRA=+fq --c-kinds=+px --fields=+iaS --langmap=c:+.h \
+	-I static,const  						\
+	--$CTAGS_EXTRA=+fq --c-kinds=+px --fields=+iaS --langmap=c:+.h  \
 	"${regex[@]}"
 
 	KCONFIG_ARGS=()
@@ -283,7 +284,44 @@ exuberant()
 		setup_regex exuberant kconfig
 		KCONFIG_ARGS=(--langdef=kconfig --language-force=kconfig "${regex[@]}")
 	fi
-	all_kconfigs | xargs $1 -a "${KCONFIG_ARGS[@]}"
+	all_kconfigs | xargs $1 -a  "${KCONFIG_ARGS[@]}"
+}
+
+exuberant_file_list()
+{
+	CTAGS_EXTRA="extras"
+
+	setup_regex exuberant asm c
+	ctags  -a -L file_list -o tags                         \
+	-I __initdata,__exitdata,__initconst,__ro_after_init	\
+	-I __initdata_memblock					\
+	-I __refdata,__attribute,__maybe_unused,__always_unused \
+	-I __acquires,__releases,__deprecated,__always_inline	\
+	-I __read_mostly,__aligned,____cacheline_aligned        \
+	-I ____cacheline_aligned_in_smp                         \
+	-I __cacheline_aligned,__cacheline_aligned_in_smp	\
+	-I ____cacheline_internodealigned_in_smp                \
+	-I __used,__packed,__packed2__,__must_check,__must_hold	\
+	-I EXPORT_SYMBOL,EXPORT_SYMBOL_GPL,ACPI_EXPORT_SYMBOL   \
+	-I DEFINE_TRACE,EXPORT_TRACEPOINT_SYMBOL,EXPORT_TRACEPOINT_SYMBOL_GPL \
+	-I static,const  						\
+	--$CTAGS_EXTRA=+fq --c-kinds=+px --fields=+iaS --langmap=c:+.h  \
+	"${regex[@]}"
+
+	KCONFIG_ARGS=()
+	if ! ctags --list-languages | grep -iq kconfig; then
+		setup_regex exuberant kconfig
+		KCONFIG_ARGS=(--langdef=kconfig --language-force=kconfig "${regex[@]}")
+	fi
+	ctags -a -L konfig_file_list -o tags  "${KCONFIG_ARGS[@]}"
+}
+
+file_list()
+{
+    rm -f file_list
+    rm -f kconfig_file_list
+    all_target_sources >> file_list  
+    all_kconfigs >> kconfig_file_list  
 }
 
 emacs()
@@ -329,7 +367,10 @@ case "$1" in
 
 	"tags")
 		rm -f tags
-		xtags ctags
+        file_list
+        exuberant_file_list 
+        rm -f file_list
+        rm -f kconfig_file_list
 		remove_structs=y
 		;;
 

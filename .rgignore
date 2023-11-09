@@ -4,5 +4,5 @@ Documentation/
 #!/arch/arm/
 LICENSES/
 Kbuild
-Kconfig
+#Kconfig
 scripts/

@@ -503,4 +503,8 @@ config NETDEV_ADDR_LIST_TEST
 	default KUNIT_ALL_TESTS
 	depends on KUNIT
 
+config NET_NOCORE
+	tristate "Non-core net components"
+	help
+        Non-core net components
 endif   # if NET

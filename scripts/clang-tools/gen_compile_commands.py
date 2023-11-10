@@ -223,6 +223,12 @@ def main():
     with open(output, 'wt') as f:
         json.dump(compile_commands, f, indent=2, sort_keys=True)
 
+    clangd_filename = os.path.join(directory, '.clangd')
+    with open(clangd_filename, 'w') as f:
+        f.writelines(['CompileFlags:', '\n  Remove: [-march=*, -mabi=*]'])
+        f.close()
+
 
 if __name__ == '__main__':
     main()
+

@@ -13,6 +13,7 @@
 .*
 !.rgignore
 !.config
+!.clangd
 *.a
 *.asn1.[ch]
 *.bin

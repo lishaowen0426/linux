@@ -1090,7 +1090,9 @@ asmlinkage __visible __init __no_sanitize_address __noreturn
 	arch_post_acpi_subsys_init();
 	kcsan_init();
 
+#ifdef CONFIG_NET_NOCORE
 	net_nocore_init();
+#endif /* ifdef CONFIG_NET_NOCORE */
 
 	/* Do the rest non-__init'ed, we're now alive */
 	arch_call_rest_init();

@@ -14,6 +14,7 @@
 #include <linux/module.h>
 
 #include <asm/sections.h>
+#include <linux/export.h>
 
 #define KSYM_NAME_LEN 512
 #define KSYM_SYMBOL_LEN (sizeof("%s+%#lx/%#lx [%s %s]") + \
@@ -77,6 +78,7 @@ int kallsyms_on_each_match_symbol(int (*fn)(void *, unsigned long),
 
 /* Lookup the address for a symbol. Returns 0 if not found. */
 unsigned long kallsyms_lookup_name(const char *name);
+
 
 extern int kallsyms_lookup_size_offset(unsigned long addr,
 				  unsigned long *symbolsize,

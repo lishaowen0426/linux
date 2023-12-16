@@ -11,6 +11,7 @@ struct ipc_namespace;
 struct pid_namespace;
 struct cgroup_namespace;
 struct fs_struct;
+struct bpf_namespace;
 
 /*
  * A structure to contain pointers to all per-process
@@ -34,10 +35,11 @@ struct nsproxy {
 	struct ipc_namespace *ipc_ns;
 	struct mnt_namespace *mnt_ns;
 	struct pid_namespace *pid_ns_for_children;
-	struct net 	     *net_ns;
+	struct net *net_ns;
 	struct time_namespace *time_ns;
 	struct time_namespace *time_ns_for_children;
 	struct cgroup_namespace *cgroup_ns;
+	struct bpf_namespace *bpf_ns;
 };
 extern struct nsproxy init_nsproxy;
 
@@ -96,8 +98,8 @@ void exit_task_namespaces(struct task_struct *tsk);
 void switch_task_namespaces(struct task_struct *tsk, struct nsproxy *new);
 int exec_task_namespaces(void);
 void free_nsproxy(struct nsproxy *ns);
-int unshare_nsproxy_namespaces(unsigned long, struct nsproxy **,
-	struct cred *, struct fs_struct *);
+int unshare_nsproxy_namespaces(unsigned long, struct nsproxy **, struct cred *,
+			       struct fs_struct *);
 int __init nsproxy_cache_init(void);
 
 static inline void put_nsproxy(struct nsproxy *ns)

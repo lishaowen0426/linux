@@ -99,4 +99,10 @@ config BPF_LSM
 
 	  If you are unsure how to answer this question, answer N.
 
+config BPF_NAMESPACE
+	bool "Enable BPF Namespace"
+	depends on BPF_SYSCALL
+	help
+	  Enable BPF namespace
+
 endmenu # "BPF subsystem"

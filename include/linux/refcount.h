@@ -112,9 +112,12 @@ typedef struct refcount_struct {
 	atomic_t refs;
 } refcount_t;
 
-#define REFCOUNT_INIT(n)	{ .refs = ATOMIC_INIT(n), }
-#define REFCOUNT_MAX		INT_MAX
-#define REFCOUNT_SATURATED	(INT_MIN / 2)
+#define REFCOUNT_INIT(n)                \
+	{                               \
+		.refs = ATOMIC_INIT(n), \
+	}
+#define REFCOUNT_MAX INT_MAX
+#define REFCOUNT_SATURATED (INT_MIN / 2)
 
 enum refcount_saturation_type {
 	REFCOUNT_ADD_NOT_ZERO_OVF,
@@ -147,7 +150,8 @@ static inline unsigned int refcount_read(const refcount_t *r)
 	return atomic_read(&r->refs);
 }
 
-static inline __must_check bool __refcount_add_not_zero(int i, refcount_t *r, int *oldp)
+static inline __must_check bool __refcount_add_not_zero(int i, refcount_t *r,
+							int *oldp)
 {
 	int old = refcount_read(r);
 
@@ -222,7 +226,8 @@ static inline void refcount_add(int i, refcount_t *r)
 	__refcount_add(i, r, NULL);
 }
 
-static inline __must_check bool __refcount_inc_not_zero(refcount_t *r, int *oldp)
+static inline __must_check bool __refcount_inc_not_zero(refcount_t *r,
+							int *oldp)
 {
 	return __refcount_add_not_zero(1, r, oldp);
 }
@@ -267,7 +272,8 @@ static inline void refcount_inc(refcount_t *r)
 	__refcount_inc(r, NULL);
 }
 
-static inline __must_check bool __refcount_sub_and_test(int i, refcount_t *r, int *oldp)
+static inline __must_check bool __refcount_sub_and_test(int i, refcount_t *r,
+							int *oldp)
 {
 	int old = atomic_fetch_sub_release(i, &r->refs);
 
@@ -310,7 +316,8 @@ static inline __must_check bool refcount_sub_and_test(int i, refcount_t *r)
 	return __refcount_sub_and_test(i, r, NULL);
 }
 
-static inline __must_check bool __refcount_dec_and_test(refcount_t *r, int *oldp)
+static inline __must_check bool __refcount_dec_and_test(refcount_t *r,
+							int *oldp)
 {
 	return __refcount_sub_and_test(1, r, oldp);
 }
@@ -361,9 +368,13 @@ static inline void refcount_dec(refcount_t *r)
 
 extern __must_check bool refcount_dec_if_one(refcount_t *r);
 extern __must_check bool refcount_dec_not_one(refcount_t *r);
-extern __must_check bool refcount_dec_and_mutex_lock(refcount_t *r, struct mutex *lock) __cond_acquires(lock);
-extern __must_check bool refcount_dec_and_lock(refcount_t *r, spinlock_t *lock) __cond_acquires(lock);
+extern __must_check bool refcount_dec_and_mutex_lock(refcount_t *r,
+						     struct mutex *lock)
+	__cond_acquires(lock);
+extern __must_check bool refcount_dec_and_lock(refcount_t *r, spinlock_t *lock)
+	__cond_acquires(lock);
 extern __must_check bool refcount_dec_and_lock_irqsave(refcount_t *r,
 						       spinlock_t *lock,
-						       unsigned long *flags) __cond_acquires(lock);
+						       unsigned long *flags)
+	__cond_acquires(lock);
 #endif /* _LINUX_REFCOUNT_H */

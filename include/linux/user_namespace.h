@@ -66,18 +66,18 @@ enum rlimit_type {
 };
 
 struct user_namespace {
-	struct uid_gid_map	uid_map;
-	struct uid_gid_map	gid_map;
-	struct uid_gid_map	projid_map;
-	struct user_namespace	*parent;
-	int			level;
-	kuid_t			owner;
-	kgid_t			group;
-	struct ns_common	ns;
-	unsigned long		flags;
+	struct uid_gid_map uid_map;
+	struct uid_gid_map gid_map;
+	struct uid_gid_map projid_map;
+	struct user_namespace *parent;
+	int level;
+	kuid_t owner;
+	kgid_t group;
+	struct ns_common ns;
+	unsigned long flags;
 	/* parent_could_setfcap: true if the creator if this ns had CAP_SETFCAP
 	 * in its effective capability set at the child ns creation time. */
-	bool			parent_could_setfcap;
+	bool parent_could_setfcap;
 
 #ifdef CONFIG_KEYS
 	/* List of joinable keyrings in this namespace.  Modification access of
@@ -85,21 +85,21 @@ struct user_namespace {
 	 * user_keyring_register is set, it won't be changed, so it can be
 	 * accessed directly with READ_ONCE().
 	 */
-	struct list_head	keyring_name_list;
-	struct key		*user_keyring_register;
-	struct rw_semaphore	keyring_sem;
+	struct list_head keyring_name_list;
+	struct key *user_keyring_register;
+	struct rw_semaphore keyring_sem;
 #endif
 
 	/* Register of per-UID persistent keyrings for this namespace */
 #ifdef CONFIG_PERSISTENT_KEYRINGS
-	struct key		*persistent_keyring_register;
+	struct key *persistent_keyring_register;
 #endif
-	struct work_struct	work;
+	struct work_struct work;
 #ifdef CONFIG_SYSCTL
-	struct ctl_table_set	set;
+	struct ctl_table_set set;
 	struct ctl_table_header *sysctls;
 #endif
-	struct ucounts		*ucounts;
+	struct ucounts *ucounts;
 	long ucount_max[UCOUNT_COUNTS];
 	long rlimit_max[UCOUNT_RLIMIT_COUNTS];
 } __randomize_layout;
@@ -118,13 +118,15 @@ extern struct ucounts init_ucounts;
 
 bool setup_userns_sysctls(struct user_namespace *ns);
 void retire_userns_sysctls(struct user_namespace *ns);
-struct ucounts *inc_ucount(struct user_namespace *ns, kuid_t uid, enum ucount_type type);
+struct ucounts *inc_ucount(struct user_namespace *ns, kuid_t uid,
+			   enum ucount_type type);
 void dec_ucount(struct ucounts *ucounts, enum ucount_type type);
 struct ucounts *alloc_ucounts(struct user_namespace *ns, kuid_t uid);
-struct ucounts * __must_check get_ucounts(struct ucounts *ucounts);
+struct ucounts *__must_check get_ucounts(struct ucounts *ucounts);
 void put_ucounts(struct ucounts *ucounts);
 
-static inline long get_rlimit_value(struct ucounts *ucounts, enum rlimit_type type)
+static inline long get_rlimit_value(struct ucounts *ucounts,
+				    enum rlimit_type type)
 {
 	return atomic_long_read(&ucounts->rlimit[type]);
 }
@@ -133,15 +135,18 @@ long inc_rlimit_ucounts(struct ucounts *ucounts, enum rlimit_type type, long v);
 bool dec_rlimit_ucounts(struct ucounts *ucounts, enum rlimit_type type, long v);
 long inc_rlimit_get_ucounts(struct ucounts *ucounts, enum rlimit_type type);
 void dec_rlimit_put_ucounts(struct ucounts *ucounts, enum rlimit_type type);
-bool is_rlimit_overlimit(struct ucounts *ucounts, enum rlimit_type type, unsigned long max);
+bool is_rlimit_overlimit(struct ucounts *ucounts, enum rlimit_type type,
+			 unsigned long max);
 
-static inline long get_userns_rlimit_max(struct user_namespace *ns, enum rlimit_type type)
+static inline long get_userns_rlimit_max(struct user_namespace *ns,
+					 enum rlimit_type type)
 {
 	return READ_ONCE(ns->rlimit_max[type]);
 }
 
 static inline void set_userns_rlimit_max(struct user_namespace *ns,
-		enum rlimit_type type, unsigned long max)
+					 enum rlimit_type type,
+					 unsigned long max)
 {
 	ns->rlimit_max[type] = max <= LONG_MAX ? max : LONG_MAX;
 }
@@ -169,14 +174,18 @@ struct seq_operations;
 extern const struct seq_operations proc_uid_seq_operations;
 extern const struct seq_operations proc_gid_seq_operations;
 extern const struct seq_operations proc_projid_seq_operations;
-extern ssize_t proc_uid_map_write(struct file *, const char __user *, size_t, loff_t *);
-extern ssize_t proc_gid_map_write(struct file *, const char __user *, size_t, loff_t *);
-extern ssize_t proc_projid_map_write(struct file *, const char __user *, size_t, loff_t *);
-extern ssize_t proc_setgroups_write(struct file *, const char __user *, size_t, loff_t *);
+extern ssize_t proc_uid_map_write(struct file *, const char __user *, size_t,
+				  loff_t *);
+extern ssize_t proc_gid_map_write(struct file *, const char __user *, size_t,
+				  loff_t *);
+extern ssize_t proc_projid_map_write(struct file *, const char __user *, size_t,
+				     loff_t *);
+extern ssize_t proc_setgroups_write(struct file *, const char __user *, size_t,
+				    loff_t *);
 extern int proc_setgroups_show(struct seq_file *m, void *v);
 extern bool userns_may_setgroups(const struct user_namespace *ns);
 extern bool in_userns(const struct user_namespace *ancestor,
-		       const struct user_namespace *child);
+		      const struct user_namespace *child);
 extern bool current_in_userns(const struct user_namespace *target_ns);
 struct ns_common *ns_get_owner(struct ns_common *ns);
 #else

@@ -50,6 +50,11 @@
  */
 #define CLONE_NEWTIME 0x00000080 /* New time namespace */
 
+/*
+ * BPF namespace
+ * */
+#define CLONE_NEWBPF 0x00000040 /* New time namespace */
+
 #ifndef __ASSEMBLY__
 /**
  * struct clone_args - arguments for the clone3 syscall

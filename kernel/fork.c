@@ -3397,16 +3397,6 @@ int unshare_fd(unsigned long unshare_flags, unsigned int max_fds,
 	return 0;
 }
 
-int noinline unshare_bpf(unsigned long unshare_flags)
-{
-	if (!(unshare_flags & CLONE_NEWBPF)) {
-		return 0;
-	} else {
-		pr_debug("unshare bpf called");
-	}
-	return 0;
-}
-
 /*
  * unshare allows a process to 'unshare' part of the process
  * context which was originally shared using clone.  copy_*
@@ -3467,8 +3457,6 @@ int ksys_unshare(unsigned long unshare_flags)
 		goto bad_unshare_cleanup_fd;
 	err = unshare_nsproxy_namespaces(unshare_flags, &new_nsproxy, new_cred,
 					 new_fs);
-
-	err = unshare_bpf(unshare_flags);
 
 	if (err)
 		goto bad_unshare_cleanup_cred;

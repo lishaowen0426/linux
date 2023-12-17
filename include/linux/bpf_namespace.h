@@ -9,6 +9,7 @@
 #include <linux/pid.h>
 #include <linux/hashtable.h>
 #include <linux/types.h>
+#include <linux/mutex.h>
 
 #define BPF_NAMESPACE_HT_BITS 6
 
@@ -23,7 +24,7 @@ struct bpf_namespace {
 	struct user_namespace *user_ns;
 } __randomize_layout;
 
-extern spinlock_t bpf_ns_lock;
+extern struct mutex bpf_ns_lock;
 extern struct bpf_namespace init_bpf_ns;
 
 #ifdef CONFIG_BPF_NAMESPACE
@@ -38,11 +39,9 @@ static inline void get_bpf_ns(struct bpf_namespace *ns)
 
 extern void free_bpf_ns(struct bpf_namespace *ns);
 
-static inline void put_bpf_ns(struct bpf_namespace *ns)
-{
-	if (refcount_dec_and_test(&ns->ns.count))
-		free_bpf_ns(ns);
-}
+extern void put_bpf_ns(struct bpf_namespace *ns);
+
+void bpf_ns_init(void);
 #else /* CONFIG_BPF_NAMESPACE */
 #include <linux/sched.h>
 #include <linux/nsproxy.h>
@@ -62,6 +61,8 @@ static inline void get_bpf_ns(struct bpf_namespace *ns)
 static inline void put_bpf_ns(struct bpf_namespace *ns)
 {
 }
+
+static inline void bpf_ns_init(void);
 #endif /* CONFIG_BPF_NAMESPACE */
 
 #endif

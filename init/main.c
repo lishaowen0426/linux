@@ -68,6 +68,7 @@
 #include <linux/kmemleak.h>
 #include <linux/padata.h>
 #include <linux/pid_namespace.h>
+#include <linux/bpf_namespace.h>
 #include <linux/device/driver.h>
 #include <linux/kthread.h>
 #include <linux/sched.h>
@@ -1075,6 +1076,7 @@ asmlinkage __visible __init __no_sanitize_address __noreturn
 	security_init();
 	dbg_late_init();
 	net_ns_init();
+	bpf_ns_init();
 	vfs_caches_init();
 	pagecache_init();
 	signals_init();

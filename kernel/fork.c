@@ -102,6 +102,7 @@
 #include <linux/iommu.h>
 #include <linux/printk.h>
 #include <linux/compiler_attributes.h>
+#include <linux/bpf_namespace.h>
 
 #include <asm/pgalloc.h>
 #include <linux/uaccess.h>
@@ -2744,6 +2745,10 @@ copy_process(struct pid *pid, int trace, int node,
 		nr_threads++;
 	}
 	total_forks++;
+
+	//pid is ready, we can join bpf_ns
+	task_join_bpf(p);
+
 	hlist_del_init(&delayed.node);
 	spin_unlock(&current->sighand->siglock);
 	syscall_tracepoint_update(p);
@@ -3480,6 +3485,10 @@ int ksys_unshare(unsigned long unshare_flags)
 			shm_init_task(current);
 		}
 
+		if (unshare_flags & CLONE_NEWBPF) {
+			task_exit_bpf(current);
+		}
+
 		if (new_nsproxy)
 			switch_task_namespaces(current, new_nsproxy);
 
@@ -3500,6 +3509,9 @@ int ksys_unshare(unsigned long unshare_flags)
 			swap(current->files, new_fd);
 
 		task_unlock(current);
+		if (unshare_flags & CLONE_NEWBPF) {
+			task_join_bpf(current);
+		}
 
 		if (new_cred) {
 			/* Install the new user namespace */

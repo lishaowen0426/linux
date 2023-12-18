@@ -2,6 +2,7 @@
 #define _LINUX_BPF_NAMESPACE_H
 
 #include "linux/compiler_types.h"
+#include "linux/sched.h"
 #include "linux/uidgid.h"
 #include <linux/kref.h>
 #include <linux/nsproxy.h>
@@ -19,13 +20,17 @@ struct bpf_namespace_member {
 };
 
 struct bpf_namespace {
+	uintptr_t id;
 	struct ns_common ns;
 	struct hlist_head members[1 << (BPF_NAMESPACE_HT_BITS)];
+	u32 member_count; //ns.count should be equal to ns.count, but NOT NECESSARILY
 	struct user_namespace *user_ns;
+	struct mutex mtx; // protect this bpf_ns
 } __randomize_layout;
 
 extern struct mutex bpf_ns_lock;
 extern struct bpf_namespace init_bpf_ns;
+extern struct bpf_namespace_member init_bpf_ns_member;
 
 #ifdef CONFIG_BPF_NAMESPACE
 struct bpf_namespace *copy_bpf_ns(unsigned long flags,
@@ -41,7 +46,15 @@ extern void free_bpf_ns(struct bpf_namespace *ns);
 
 extern void put_bpf_ns(struct bpf_namespace *ns);
 
-void bpf_ns_init(void);
+extern void task_join_bpf(struct task_struct *tsk);
+extern void task_exit_bpf(struct task_struct *tsk);
+
+extern void bpf_ns_init(void);
+
+static inline struct bpf_namespace *task_bpf_ns(struct task_struct *tsk)
+{
+	return tsk->nsproxy->bpf_ns;
+}
 #else /* CONFIG_BPF_NAMESPACE */
 #include <linux/sched.h>
 #include <linux/nsproxy.h>
@@ -62,7 +75,15 @@ static inline void put_bpf_ns(struct bpf_namespace *ns)
 {
 }
 
-static inline void bpf_ns_init(void);
+static inline void bpf_ns_init(void)
+{
+}
+static inline void task_join_bpf(struct task_struct *tsk)
+{
+}
+static inline void task_exit_bpf(struct task_struct *tsk)
+{
+}
 #endif /* CONFIG_BPF_NAMESPACE */
 
 #endif
